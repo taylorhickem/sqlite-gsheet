@@ -1,0 +1,29 @@
+{
+  "myapp": {
+    "wkbid": "1T8JCGdsTAjr8820l-iSHKnPlZFM2C7MKDLQLcoQA-sk",
+    "sheets": {
+      "config": {
+        "data": "config!A2:D",
+        "header": "config!A1:D1"
+      },
+      "records": {
+        "data": "records!A2:C",
+        "header": "records!A1:C1",
+        "data_types": {
+          "date": "date",
+          "parameter": "str",
+          "value": "float"
+        }
+      },
+      "form": {
+        "data": "form!A3:C",
+        "header": "form!A2:C2",
+        "data_types": {
+          "date": "date",
+          "parameter": "str",
+          "value": "float"
+        }
+      }
+    }
+  }
+}
