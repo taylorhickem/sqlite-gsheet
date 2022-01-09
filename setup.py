@@ -28,8 +28,7 @@ setup(
         "SQLAlchemy==1.4.29",
         "typing_extensions==4.0.1",
         "zipp==3.6.0",
-        "requests==2.7.0",
-        "SomePrivateLib>=0.1.0"
+        "requests==2.7.0"
         ],
     include_package_data=True,
 )
