@@ -6,7 +6,7 @@ import datetime as dt
 import pandas as pd
 
 import database as db
-#import sqlite-gsheet.database as db
+##from sqlite-gsheet import database as db
 
 # -----------------------------------------------------
 # Module variables

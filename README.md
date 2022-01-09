@@ -52,20 +52,31 @@ run from python interpreter
 
 load from gsheet into pandas DataFrame _form_
 
-`import sqlite-gsheet.database as db`
+`from sqlite-gsheet import database as db`
 
 `db.load()`
 
 `form = db.get_sheet('myapp', 'form')`
 
-post to gsheet from pandas DataFrame _form_
+post to gsheet from pandas DataFrame _form_responses_
 
-`import sqlite-gsheet.database as db`
+`from sqlite-gsheet import database as db`
 
 `db.load()`
 
-`db.post_to_gsheet(form, 'myapp', 'form')`
+`form_responses = db.get_sheet('myapp', 'form')`
 
+`records = db.get_sheet('myapp', 'records')`
+
+`records = records.append(form_responses)`
+
+`db.post_to_gsheet(records,
+                      'myapp',
+                      'records',
+                      input_option='USER_ENTERED')
+`
+
+_##sqlite features to be elaborated in future version of the documentation##_
 
 ## sample files
 
