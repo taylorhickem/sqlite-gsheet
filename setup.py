@@ -1,12 +1,15 @@
 from setuptools import setup, find_packages
+import os, shutil
 
 setup(
     name='sqlite-gsheet',
+    version='1.0',
     packages=find_packages(),
     url='https://github.com/taylorhickem/sqlite-gsheet.git',
     description='add-on utility for simple python apps to use sqlite as storage and google sheets as user interface',
+    author='@taylorhickem',
     long_description=open('README.md').read(),
-    #install_requires=open('requirements.txt').read(), convert it to list
+    #install_requires=open("requirements.txt", "r").read().splitlines(),
     install_requires=[
         "google-api-core==1.24.1",
         "google-api-python-client==1.12.8",
