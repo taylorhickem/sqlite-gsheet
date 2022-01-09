@@ -11,7 +11,7 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
  
 2. install the module into your python project from the github repository url using pip
 
-     `pip install git+https://github.com/taylorhickem/https://github.com/taylorhickem/sqlite-gsheet.git`
+     `pip install git+https://github.com/taylorhickem/sqlite-gsheet.git`
 
 3. add the _client_secret.json_ file into your project root directory
 
