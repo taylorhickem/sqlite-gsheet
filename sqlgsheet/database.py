@@ -30,7 +30,6 @@ SQL_DATA_TYPES = {'INTEGER()':'int',
 
 
 # dynamic : config
-CONFIG = {}
 GSHEET_CONFIG = {}
 
 ROOT_DIR = os.getcwd()
@@ -52,8 +51,7 @@ def load():
 
 def load_config():
     global CONFIG, GSHEET_CONFIG
-    CONFIG = json.load(open(LOCAL_DIR + 'config.json'))
-    GSHEET_CONFIG = json.load(open(LOCAL_DIR + CONFIG['gsheet_config_file']))
+    GSHEET_CONFIG = json.load(open('gsheet_config.json'))
 
 
 def load_gsheet():

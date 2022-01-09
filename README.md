@@ -22,12 +22,11 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
         \sqlalchemy
         \sqlgsheet
 
-           client_secret.json
-           config.json
-           gsheet_config.json
            database.py
            gsheet.py
+           client_secret.json
 
+    gsheet_config.json
     myapp.py
                  
 4. create your google spreadsheet
