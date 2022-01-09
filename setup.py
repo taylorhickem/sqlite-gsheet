@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import os, shutil
 
 setup(
     name='sqlite-gsheet',
