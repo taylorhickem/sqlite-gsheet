@@ -13,14 +13,23 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
 
      `pip install git+https://github.com/taylorhickem/sqlite-gsheet.git`
 
-3. add the _client_secret.json_ file into your project root directory
+3. add the _client_secret.json_ file into the folder for your instance of sqlgsheet package
 
-    \myapp 
-    * LICENSE   
-    * .gitignore
-    * client_secret.json
-    * myapp.py
+    
+      \lib
+      
+        \pandas
+        \sqlalchemy
+        \sqlgsheet
 
+           client_secret.json
+           config.json
+           gsheet_config.json
+           database.py
+           gsheet.py
+
+    myapp.py
+                 
 4. create your google spreadsheet
 
     demo sheet [myapp](https://docs.google.com/spreadsheets/d/1T8JCGdsTAjr8820l-iSHKnPlZFM2C7MKDLQLcoQA-sk/) 
@@ -52,7 +61,7 @@ run from python interpreter
 
 load from gsheet into pandas DataFrame _form_
 
-`from sqlite-gsheet import database as db`
+`from sqlgsheet import database as db`
 
 `db.load()`
 
@@ -60,7 +69,7 @@ load from gsheet into pandas DataFrame _form_
 
 post to gsheet from pandas DataFrame _form_responses_
 
-`from sqlite-gsheet import database as db`
+`from sqlgsheet import database as db`
 
 `db.load()`
 
