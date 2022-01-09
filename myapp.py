@@ -5,8 +5,8 @@
 import datetime as dt
 import pandas as pd
 
-import database as db
-##from sqlite-gsheet import database as db
+#import database as db
+from sqlgsheet import database as db
 
 # -----------------------------------------------------
 # Module variables

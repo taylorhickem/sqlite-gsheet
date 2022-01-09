@@ -11,8 +11,7 @@ import pandas as pd
 import datetime as dt
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
-import gsheet as gs
-#import sqlite-gsheet.gsheet as gs
+from sqlgsheet import gsheet as gs
 
 ##-----------------------------------------------------
 # Module variables
@@ -34,6 +33,8 @@ SQL_DATA_TYPES = {'INTEGER()':'int',
 CONFIG = {}
 GSHEET_CONFIG = {}
 
+ROOT_DIR = os.getcwd()
+LOCAL_DIR = ROOT_DIR + "\\sqlgsheet\\"
 
 # custom class objects from other modules
 engine = None
@@ -51,8 +52,8 @@ def load():
 
 def load_config():
     global CONFIG, GSHEET_CONFIG
-    CONFIG = json.load(open('config.json'))
-    GSHEET_CONFIG = json.load(open(CONFIG['gsheet_config_file']))
+    CONFIG = json.load(open(LOCAL_DIR + 'config.json'))
+    GSHEET_CONFIG = json.load(open(LOCAL_DIR + CONFIG['gsheet_config_file']))
 
 
 def load_gsheet():
