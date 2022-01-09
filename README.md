@@ -15,7 +15,7 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
 
 3. add the _client_secret.json_ file into the folder for your instance of sqlgsheet package
 
-   
+```   
       \lib     
         \pandas
         \sqlalchemy
@@ -24,8 +24,10 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
            database.py
            gsheet.py
            client_secret.json           
+
     gsheet_config.json
     myapp.py
+```
                  
 4. create your google spreadsheet
 
