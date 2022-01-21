@@ -5,13 +5,13 @@
 # -----------------------------------------------------
 import os
 import shutil
-import utilities.fso as fso
 import json
 import pandas as pd
 import datetime as dt
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
 from sqlgsheet import gsheet as gs
+from sqlgsheet import fso
 
 ##-----------------------------------------------------
 # Module variables
