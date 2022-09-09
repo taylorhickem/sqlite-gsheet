@@ -13,7 +13,7 @@ import numpy as np
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 CLIENT_SECRET_FILE ='client_secret.json'   #must be located in the same directory
-ordRef = {'A':65}
+ordRef = {'A': 65}
 
 def get_credentials():
     #current_path = os.path.abspath('')
