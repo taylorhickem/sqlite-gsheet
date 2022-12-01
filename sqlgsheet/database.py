@@ -12,11 +12,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
 from sqlgsheet import gsheet as gs
 from sqlgsheet import fso
+from sqlgsheet import mysql
 
 ##-----------------------------------------------------
 # Module variables
 ##-----------------------------------------------------
 # constants
+DB_SOURCE = 'remote'    # remote=MySQL, local=sqlite
 NUMERIC_TYPES = ['int', 'float']
 SQL_DB_NAME = 'sqlite:///myapp.db'
 SQL_DATA_TYPES = {'INTEGER()':'int',
@@ -33,12 +35,12 @@ SQL_DATA_TYPES = {'INTEGER()':'int',
 GSHEET_CONFIG = {}
 
 ROOT_DIR = os.getcwd()
-LOCAL_DIR = ROOT_DIR + "\\sqlgsheet\\"
+LOCAL_DIR = os.path.abspath(os.path.join(ROOT_DIR, 'sqlgsheet'))
 
 # custom class objects from other modules
 engine = None
 gs_engine = None
-
+con = None
 
 # -----------------------------------------------------
 # Setup
@@ -61,13 +63,35 @@ def load_gsheet():
 
 
 # -----------------------------------------------------
-# Sqlite
+# SQL
 # -----------------------------------------------------
+def unload_sql():
+    global engine, con, inspector, table_names
+    table_names = []
+    inspector = None
+    engine = None
+    con = None
+
+
+def sql_config(db_source, sqlite_db_name=None):
+    global DB_SOURCE, SQL_DB_NAME
+    DB_SOURCE = db_source
+    if sqlite_db_name:
+        SQL_DB_NAME = sqlite_db_name
+
 
 def load_sql():
-    global engine, inspector, table_names
+    global engine, inspector, table_names, con
     if engine is None:
-        engine = create_engine(SQL_DB_NAME, echo=False)
+        if DB_SOURCE == 'remote': # MySQL
+            mysql.load()
+            engine = mysql.engine
+            con = mysql.con
+
+        elif DB_SOURCE == 'local': # sqlite
+            engine = create_engine(SQL_DB_NAME, echo=False)
+            con = engine.connect()
+
         inspector = Inspector.from_engine(engine)
         table_names = inspector.get_table_names()
 
