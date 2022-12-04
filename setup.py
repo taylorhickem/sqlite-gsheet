@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sqlite-gsheet',
-    version='1.1',
+    version='1.2',
     packages=find_packages(),
     url='https://github.com/taylorhickem/sqlite-gsheet.git',
     description='add-on utility for simple python apps to use sqlite as storage and google sheets as user interface',
