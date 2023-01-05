@@ -13,20 +13,17 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
 
      `pip install git+https://github.com/taylorhickem/sqlite-gsheet.git`
 
-3. add the _client_secret.json_ file into the folder for your instance of sqlgsheet package
+3. upload the _client_secret.json_ to your sqlgsheet package instance.
+    you only need to do this once.
 
 ```   
-      \lib     
-        \pandas
-        \sqlalchemy
-        \sqlgsheet
+(venv) >python -m sqlgsheet.database load_client_secret
+```
 
-           database.py
-           gsheet.py
-           client_secret.json           
+or to specify a path other than the default 'client_secret.json' from the working diectory :
 
-    gsheet_config.json
-    myapp.py
+```   
+(venv) >python -m sqlgsheet.database load_client_secret <path to client secret file>
 ```
                  
 4. create your google spreadsheet
