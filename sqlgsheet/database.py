@@ -4,6 +4,7 @@
 # Import
 # -----------------------------------------------------
 import os
+import sys
 import shutil
 import json
 import pandas as pd
@@ -18,7 +19,7 @@ from sqlgsheet import mysql
 # Module variables
 ##-----------------------------------------------------
 # constants
-DB_SOURCE = 'remote'    # remote=MySQL, local=sqlite
+DB_SOURCE = 'local'    # remote=MySQL, local=sqlite
 NUMERIC_TYPES = ['int', 'float']
 SQL_DB_NAME = 'sqlite:///myapp.db'
 SQL_DATA_TYPES = {'INTEGER()':'int',
@@ -33,9 +34,7 @@ SQL_DATA_TYPES = {'INTEGER()':'int',
 
 # dynamic : config
 GSHEET_CONFIG = {}
-
-ROOT_DIR = os.getcwd()
-LOCAL_DIR = os.path.abspath(os.path.join(ROOT_DIR, 'sqlgsheet'))
+LOCAL_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # custom class objects from other modules
 engine = None
@@ -49,6 +48,13 @@ def load():
     load_config()
     load_sql()
     load_gsheet()
+
+
+def load_client_secret(client_secret):
+    file_path = os.path.join(LOCAL_DIR, gs.CLIENT_SECRET_FILE)
+    with open(file_path, 'w') as f:
+        json.dump(client_secret, f)
+    f.close()
 
 
 def load_config():
@@ -273,6 +279,23 @@ class CSVDirectory(object):
                         dest = new_directory + '\\' + f
                     shutil.move(src, dest)
             self.__init__(self.path)
+
+# -----------------------------------------------------
+# CLI
+# -----------------------------------------------------
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        function_name = sys.argv[1]
+        if function_name == 'load_client_secret':
+            file_path = gs.CLIENT_SECRET_FILE
+            if len(sys.argv) > 2:
+                file_path = sys.argv[2]
+            with open(file_path, 'r') as f:
+                client_secret = json.load(f)
+            load_client_secret(client_secret)
+            f.close()
 # -----------------------------------------------------
 # ***
 # -----------------------------------------------------
