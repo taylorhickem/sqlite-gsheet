@@ -3,6 +3,8 @@ add-on utility for simple python apps to use sqlite as storage and google sheets
 
 ## setup
 
+see below for user data configuration from non-default directory
+
 1. configure service account for google sheets api
     search online sources for steps to setup a service account 
        example: robocorp article: [how to read from and write into Google Sheets for your robots](https://robocorp.com/docs/development-guide/google-sheets/interacting-with-google-sheets)
@@ -133,3 +135,20 @@ sample _gsheet_config_
   }
 }
 `
+
+## User data from non-default directory
+
+For some use cases, such as with use in AWS lambda, 
+you need to set user data from a custom directory location 
+other than the runtime directory.
+
+before calling any methods from database.py, first run .set_user_data()
+and specify the full path to the user data files identified with keywords.
+
+```
+db.set_user_data(
+    gsheet_config='/path/gsheet_config.json'
+    gas_client_secret='/path/.../client_secret.json'
+    mysql_credentials='/path/.../mysql_credentials.json'
+)
+```

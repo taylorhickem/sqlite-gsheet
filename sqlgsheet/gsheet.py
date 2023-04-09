@@ -18,9 +18,9 @@ ordRef = {'A': 65}
 def get_credentials():
     #current_path = os.path.abspath('')
     #file_path = current_path[:current_path.find('PyTools')] + 'PyTools\\GsheetsAPI\\'
-    file_path = os.path.join(os.path.dirname(__file__), CLIENT_SECRET_FILE)
+    #file_path = os.path.join(os.path.dirname(__file__), CLIENT_SECRET_FILE)
     #credentials = service_account.Credentials.from_service_account_file(file_path + CLIENT_SECRET_FILE,scopes=SCOPES)
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(file_path, SCOPES)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(CLIENT_SECRET_FILE, SCOPES)
     return credentials
 
 shtEng = None

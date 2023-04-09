@@ -9,6 +9,7 @@ import shutil
 import json
 import pandas as pd
 import datetime as dt
+from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
 from sqlgsheet import gsheet as gs
@@ -20,6 +21,7 @@ from sqlgsheet import mysql
 ##-----------------------------------------------------
 # constants
 DB_SOURCE = 'local'    # remote=MySQL, local=sqlite
+PATH_GSHEET_CONFIG = 'gsheet_config.json'
 NUMERIC_TYPES = ['int', 'float']
 SQL_DB_NAME = 'sqlite:///myapp.db'
 SQL_DATA_TYPES = {'INTEGER()':'int',
@@ -59,13 +61,25 @@ def load_client_secret(client_secret):
 
 def load_config():
     global CONFIG, GSHEET_CONFIG
-    GSHEET_CONFIG = json.load(open('gsheet_config.json'))
+    GSHEET_CONFIG = json.load(open(PATH_GSHEET_CONFIG))
 
 
 def load_gsheet():
     global gs_engine
     if gs_engine is None:
         gs_engine = gs.SheetsEngine()
+
+
+def set_user_data(gsheet_config: Optional[str] = None,
+                  client_secret: Optional[str] = None,
+                  mysql_credentials: Optional[str] = None) -> None:
+    global PATH_GSHEET_CONFIG
+    if client_secret:
+        gs.CLIENT_SECRET_FILE = gsheet_config
+    if mysql_credentials:
+        mysql.PATH_MYSQL_CRED = mysql_credentials
+    if gsheet_config:
+        PATH_GSHEET_CONFIG = gsheet_config
 
 
 # -----------------------------------------------------

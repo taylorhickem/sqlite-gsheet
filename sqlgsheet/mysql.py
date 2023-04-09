@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 # Module variables
 ##-----------------------------------------------------
 
+PATH_MYSQL_CRED = 'mysql_credentials.json'
 MYSQL_CONFIG = {}
 MYSQL_CREDENTIALS = {}
 engine = None
@@ -27,7 +28,7 @@ def load():
 
 def load_config():
     global MYSQL_CONFIG, MYSQL_CREDENTIALS
-    MYSQL_CREDENTIALS = json.load(open('mysql_credentials.json'))
+    MYSQL_CREDENTIALS = json.load(open(PATH_MYSQL_CRED))
 
 
 def load_sql():
