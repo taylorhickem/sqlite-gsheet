@@ -144,10 +144,9 @@ def get_file_parent_folder_ids(file_id):
 def get_credentials():
     #current_path = os.path.abspath('')
     #file_path = current_path[:current_path.find('PyTools')] + 'PyTools\\GsheetsAPI\\'
-    file_path = os.path.dirname(__file__) + '\\'
+    #file_path = os.path.dirname(__file__) + '\\'
     #credentials = service_account.Credentials.from_service_account_file(file_path + CLIENT_SECRET_FILE,scopes=SCOPES)
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        file_path + CLIENT_SECRET_FILE, SCOPES)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(CLIENT_SECRET_FILE, SCOPES)
     return credentials
 
 
