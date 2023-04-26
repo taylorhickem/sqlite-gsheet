@@ -13,6 +13,7 @@ from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
 from sqlgsheet import gsheet as gs
+from sqlgsheet import gdrive as gd
 from sqlgsheet import fso
 from sqlgsheet import mysql
 
@@ -75,7 +76,8 @@ def set_user_data(gsheet_config: Optional[str] = None,
                   mysql_credentials: Optional[str] = None) -> None:
     global PATH_GSHEET_CONFIG
     if client_secret:
-        gs.CLIENT_SECRET_FILE = gsheet_config
+        gs.CLIENT_SECRET_FILE = client_secret
+        gd.CLIENT_SECRET_FILE = client_secret
     if mysql_credentials:
         mysql.PATH_MYSQL_CRED = mysql_credentials
     if gsheet_config:
@@ -310,6 +312,3 @@ if __name__ == "__main__":
                 client_secret = json.load(f)
             load_client_secret(client_secret)
             f.close()
-# -----------------------------------------------------
-# ***
-# -----------------------------------------------------
