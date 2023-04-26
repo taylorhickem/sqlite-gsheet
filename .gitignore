@@ -2,7 +2,8 @@
 *.bat
 *.lnk
 *.url
-/sqlgsheet/client_secret.json
+client_secret.json
+gsheet_config.json
 *~
 __pycache__
 env

@@ -6,29 +6,28 @@
 #-----------------------------------------------------------------------------
 # import dependencies
 #-----------------------------------------------------------------------------
-import os
 import io
-import os.path
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
-#from apiclient import discovery
-#from google.oauth2 import service_account
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseDownload
-#import httplib2
-import pandas as pd
-import numpy as np
 
 #-----------------------------------------------------------------------------
 # module variables
 #-----------------------------------------------------------------------------
 SCOPES = ['https://www.googleapis.com/auth/drive']
-CLIENT_SECRET_FILE ='client_secret.json'   #must be located in the same directory
+CLIENT_SECRET_DEFAULT = 'client_secret.json'
+CLIENT_SECRET_FILE = ''
+LOADED = False
 ordRef = {'A': 65}
 gdrive_engine = None
 service = None
+
+def set_secret_file_path():
+    global CLIENT_SECRET_FILE, LOADED
+    if (not LOADED) and (not CLIENT_SECRET_FILE):
+        CLIENT_SECRET_FILE = CLIENT_SECRET_DEFAULT
+        LOADED = True
 
 #-----------------------------------------------------------------------------
 # file folder operations
@@ -142,40 +141,24 @@ def get_file_parent_folder_ids(file_id):
 # authentication
 #-----------------------------------------------------------------------------
 def get_credentials():
-    #current_path = os.path.abspath('')
-    #file_path = current_path[:current_path.find('PyTools')] + 'PyTools\\GsheetsAPI\\'
-    #file_path = os.path.dirname(__file__) + '\\'
-    #credentials = service_account.Credentials.from_service_account_file(file_path + CLIENT_SECRET_FILE,scopes=SCOPES)
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(CLIENT_SECRET_FILE, SCOPES)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        CLIENT_SECRET_FILE,
+        SCOPES
+    )
     return credentials
 
 
 def login():
     global service
+    set_secret_file_path()
     credentials = get_credentials()
-    # self.service = discovery.build('sheets','v4',credentials=credentials)
     http = credentials.authorize(Http())
-    service = build('drive', 'v3', http=http)
+    service = build('drive', 'v3', http=http, cache_discovery=False)
 
 
 #-----------------------------------------------------------------------------
 # class: GDriveEngine
 #-----------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------------------------
-# helper functions
-#-----------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------------------------
-# example script : login and get folder id from folder name
-#-----------------------------------------------------------------------------
-#from sqlgsheet import gdrive
-#folder_name = '01 NowThen data'
-#gdrive.login()
-#folder_id = gdrive.get_folder_id(folder_name)
-
 #-----------------------------------------------------------------------------
 # END
 #-----------------------------------------------------------------------------
