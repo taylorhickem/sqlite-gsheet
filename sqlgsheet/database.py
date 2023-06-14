@@ -12,6 +12,10 @@ import datetime as dt
 from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
+from sqlalchemy import MetaData
+from sqlalchemy.sql.expression import bindparam
+from sqlalchemy import delete
+from sqlalchemy import update
 from sqlgsheet import gsheet as gs
 from sqlgsheet import gdrive as gd
 from sqlgsheet import fso
@@ -111,8 +115,9 @@ def load_sql():
             con = mysql.con
 
         elif DB_SOURCE == 'local': # sqlite
-            engine = create_engine(SQL_DB_NAME, echo=False)
-            con = engine.connect()
+            connect = _sqlite_connection(database=SQL_DB_NAME)
+            engine = connect['engine']
+            con = connect['con']
 
         inspector = Inspector.from_engine(engine)
         table_names = inspector.get_table_names()
@@ -122,9 +127,13 @@ def table_exists(tableName):
     return tableName in table_names
 
 
-def get_table(table_name):
-    if table_exists(table_name):
-        tbl = pd.read_sql_table(table_name, con=engine)
+def get_table(table_name, con=None):
+    check_exists = True
+    if not con:
+        check_exists = table_exists(table_name)
+        con=engine
+    if check_exists:
+        tbl = pd.read_sql_table(table_name, con=con)
     else:
         tbl = None
     return tbl
@@ -137,6 +146,68 @@ def update_table(tbl, tblname, append=True):
     else:
         ifex = 'replace'
     tbl.to_sql(tblname, con=engine, if_exists=ifex, index=False)
+
+
+def db_connection(db_type, **spec) -> dict:
+    connect = {}
+    if db_type == 'sqlite':
+        connect = _sqlite_connection(**spec)
+    elif db_type == 'mysql':
+        connect = mysql.get_connection(**spec)
+    else:
+        raise ValueError(f'unrecognized db_type:{db_type}. Allowed  [sqlite, mysql]')
+    return connect
+
+
+def _sqlite_connection(database='') -> dict:
+    connect = {}
+    try:
+        connect['engine'] = create_engine(database, echo=False)
+        connect['con'] = connect['engine'].connect()
+    except Exception as e:
+        print(f'ERROR: unable to connect to database {e}')
+    return connect
+
+
+def rows_insert(rows, table_name, con=None):
+    if con is None:
+        con = con
+    rows.to_sql(table_name, con=con, if_exists='append', index=False)
+
+
+def rows_delete(rows, table_name, key='index', eng=None):
+    if eng is None:
+        eng = engine
+    md = MetaData(bind=eng)
+    md.reflect()
+    if table_name in md.tables:
+        if key == 'index':
+            keys = list(rows.index)
+        else:
+            keys = list(rows[key])
+
+        table = md.tables[table_name]
+        stmt = delete(table).\
+            where(table.c[key].in_(keys))
+        eng.connect().execute(stmt)
+
+
+def rows_update(rows, table_name, key='index', eng=None):
+    u_rows = rows.copy()
+    if eng is None:
+        eng = engine
+    md = MetaData(bind=eng)
+    md.reflect()
+    if table_name in md.tables:
+        if key == 'index':
+            u_rows.reset_index(inplace=True)
+        u_rows.rename(columns={key: '_' + key}, inplace=True)
+        row_values = u_rows.to_dict(orient='records')
+
+        table = md.tables[table_name]
+        stmt = update(table).\
+            where(table.c[key] == bindparam('_' + key))
+        eng.connect().execute(stmt, row_values)
 
 
 # -----------------------------------------------------
