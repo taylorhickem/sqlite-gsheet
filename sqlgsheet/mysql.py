@@ -34,9 +34,27 @@ def load_config():
 def load_sql():
     global engine, con
     if engine is None:
-        login_request_url = MYSQL_CREDENTIALS['login'].format(
-                user=MYSQL_CREDENTIALS['username'],
-                pw=urllib.parse.quote_plus(MYSQL_CREDENTIALS['password']),
-                db=MYSQL_CREDENTIALS['database'])
-        engine = create_engine(login_request_url)
-        con = engine.connect()
+        params = {k: MYSQL_CREDENTIALS[k] for k in [
+            'database',
+            'login',
+            'username',
+            'password'
+        ]}
+        connect = get_connection(**params)
+        engine = connect['engine']
+        con = connect['con']
+
+
+def get_connection(database='',
+                   login='', username='', password='') -> dict:
+    connect = {}
+    login_request_url = login.format(
+        user=username,
+        pw=urllib.parse.quote_plus(password),
+        db=database)
+    try:
+        connect['engine'] = create_engine(login_request_url)
+        connect['con'] = connect['engine'].connect()
+    except Exception as e:
+        print(f'ERROR: unable to connect to database {e}')
+    return connect

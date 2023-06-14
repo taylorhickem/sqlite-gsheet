@@ -8,6 +8,10 @@ gsheet_config.json
 __pycache__
 env
 venv
+build
+dist
+hours.db
+*.egg-info
 .idea
 *.ipynb
 db.sqlite3

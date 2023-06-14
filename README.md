@@ -152,3 +152,64 @@ db.set_user_data(
     mysql_credentials='/path/.../mysql_credentials.json'
 )
 ```
+
+## database sync
+
+for details refer to the issue [database sync](https://github.com/taylorhickem/sqlite-gsheet/issues/26)
+
+for two identical dataset schemas,one MASTER and one SLAVE,
+whose unique columns are identified by some column_subset and contain a last_updated field:
+
+the database sync will
+
+1. compare the two datasets and
+2. merges updates from the SLAVE to the MASTER
+3. update the SLAVE to match the master
+4. with the conditions that
+    * rows can only be deleted from the MASTER
+    * rows can be added or updated in either the MASTER or the SLAVE
+
+The user specifies the database sync settings with a dbsync_config.json file
+
+*dbsync_config.json*
+```
+{
+  "master": {
+    "db_type": "sqlite",
+    "database": "sqlite:///myapp.db"
+  },
+  "slave": {
+    "db_type": "mysql",
+    "database": "hours",
+    "host": "127.0.0.1",
+    "login": "mysql+pymysql://{user}:{pw}@127.0.0.1/{db}",
+    "username": "admin",
+    "password": "P@ssword"
+  },
+  "tables": {
+    "last_modified": "last_modified",
+    "event": {
+      "key": [
+        "timestamp"
+      ]
+    }
+  }
+}
+```
+
+To run the sync, use the sqlgsheet.sync module
+
+```
+from sqlgsheet import sync
+
+sync.config('dbsync_config.json')
+sync.db_connect() # optional, first part of sync.update()
+sync.update()
+```
+
+Alternatively, you can use the command line interface
+
+```
+(env) >python -m sqlgsheet.sync update dbsync_config.json
+```
+
