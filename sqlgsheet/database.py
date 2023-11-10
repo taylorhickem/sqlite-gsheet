@@ -11,6 +11,7 @@ import pandas as pd
 import datetime as dt
 from typing import Optional
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy import MetaData
 from sqlalchemy.sql.expression import bindparam
@@ -25,7 +26,7 @@ from sqlgsheet import mysql
 # Module variables
 ##-----------------------------------------------------
 # constants
-DB_SOURCE = 'local'    # remote=MySQL, local=sqlite
+DB_SOURCE = 'local'    # remote=MySQL, local=sqlite, generic=templates.DBConnection
 PATH_GSHEET_CONFIG = 'gsheet_config.json'
 NUMERIC_TYPES = ['int', 'float']
 SQL_DB_NAME = 'sqlite:///myapp.db'
@@ -41,6 +42,7 @@ SQL_DATA_TYPES = {'INTEGER()':'int',
 
 # dynamic : config
 GSHEET_CONFIG = {}
+DB_CONFIG = {}
 LOCAL_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # custom class objects from other modules
@@ -48,12 +50,13 @@ engine = None
 gs_engine = None
 con = None
 
+
 # -----------------------------------------------------
 # Setup
 # -----------------------------------------------------
-def load():
-    load_config()
-    load_sql()
+def load(generic_con_class=None, db_config={}):
+    load_config(db_config=db_config)
+    load_sql(generic_con_class=generic_con_class)
     load_gsheet()
 
 
@@ -64,9 +67,10 @@ def load_client_secret(client_secret):
     f.close()
 
 
-def load_config():
-    global CONFIG, GSHEET_CONFIG
+def load_config(db_config={}):
+    global CONFIG, GSHEET_CONFIG, DB_CONFIG
     GSHEET_CONFIG = json.load(open(PATH_GSHEET_CONFIG))
+    DB_CONFIG = db_config
 
 
 def load_gsheet():
@@ -99,14 +103,16 @@ def unload_sql():
     con = None
 
 
-def sql_config(db_source, sqlite_db_name=None):
-    global DB_SOURCE, SQL_DB_NAME
+def sql_config(db_source, sqlite_db_name=None, db_config={}):
+    global DB_SOURCE, SQL_DB_NAME, DB_CONFIG
     DB_SOURCE = db_source
+    if db_config:
+        DB_CONFIG = db_config
     if sqlite_db_name:
         SQL_DB_NAME = sqlite_db_name
 
 
-def load_sql():
+def load_sql(generic_con_class=None):
     global engine, inspector, table_names, con
     if engine is None:
         if DB_SOURCE == 'remote': # MySQL
@@ -122,9 +128,19 @@ def load_sql():
         inspector = Inspector.from_engine(engine)
         table_names = inspector.get_table_names()
 
+        if DB_SOURCE == 'generic': #templates.DBConnection
+            con = generic_con_class(DB_CONFIG)
+            engine = con
+            table_names = con.get_table_names()
+
 
 def table_exists(tableName):
     return tableName in table_names
+
+
+def is_sqlalchemy_con(con_obj):
+    is_class = isinstance(con_obj, Engine) or isinstance(con_obj, Connection)
+    return is_class
 
 
 def get_table(table_name, con=None):
@@ -133,19 +149,26 @@ def get_table(table_name, con=None):
         check_exists = table_exists(table_name)
         con=engine
     if check_exists:
-        tbl = pd.read_sql_table(table_name, con=con)
+        if is_sqlalchemy_con(con):
+            tbl = pd.read_sql_table(table_name, con=con)
+        else:
+            tbl = con.get_table(table_name)
     else:
         tbl = None
     return tbl
 
 
 def update_table(tbl, tblname, append=True):
-    global engine
-    if append:
-        ifex = 'append'
+    if is_sqlalchemy_con(engine):
+        if append:
+            ifex = 'append'
+        else:
+            ifex = 'replace'
+        tbl.to_sql(tblname, con=engine, if_exists=ifex, index=False)
     else:
-        ifex = 'replace'
-    tbl.to_sql(tblname, con=engine, if_exists=ifex, index=False)
+        if not append:
+            engine.delete_all(tblname)
+        engine.rows_insert(tbl, tblname)
 
 
 def db_connection(db_type, **spec) -> dict:
@@ -154,8 +177,10 @@ def db_connection(db_type, **spec) -> dict:
         connect = _sqlite_connection(**spec)
     elif db_type == 'mysql':
         connect = mysql.get_connection(**spec)
+    elif db_type == 'generic':
+        connect = con.connection(**spec)
     else:
-        raise ValueError(f'unrecognized db_type:{db_type}. Allowed  [sqlite, mysql]')
+        raise ValueError(f'unrecognized db_type:{db_type}. Allowed  [sqlite, mysql, generic]')
     return connect
 
 
@@ -172,43 +197,51 @@ def _sqlite_connection(database='') -> dict:
 def rows_insert(rows, table_name, con=None):
     if con is None:
         con = con
-    rows.to_sql(table_name, con=con, if_exists='append', index=False)
+    if is_sqlalchemy_con(con):
+        rows.to_sql(table_name, con=con, if_exists='append', index=False)
+    else:
+        con.rows_insert(rows, table_name)
 
 
 def rows_delete(rows, table_name, key='index', eng=None):
     if eng is None:
         eng = engine
-    md = MetaData(bind=eng)
-    md.reflect()
-    if table_name in md.tables:
-        if key == 'index':
-            keys = list(rows.index)
-        else:
-            keys = list(rows[key])
+    if is_sqlalchemy_con(eng):
+        md = MetaData(bind=eng)
+        md.reflect()
+        if table_name in md.tables:
+            if key == 'index':
+                keys = list(rows.index)
+            else:
+                keys = list(rows[key])
 
-        table = md.tables[table_name]
-        stmt = delete(table).\
-            where(table.c[key].in_(keys))
-        eng.connect().execute(stmt)
+            table = md.tables[table_name]
+            stmt = delete(table).\
+                where(table.c[key].in_(keys))
+            eng.connect().execute(stmt)
+    else:
+        eng.rows_delete(rows, table_name, key)
 
 
 def rows_update(rows, table_name, key='index', eng=None):
-    u_rows = rows.copy()
     if eng is None:
         eng = engine
-    md = MetaData(bind=eng)
-    md.reflect()
-    if table_name in md.tables:
-        if key == 'index':
-            u_rows.reset_index(inplace=True)
-        u_rows.rename(columns={key: '_' + key}, inplace=True)
-        row_values = u_rows.to_dict(orient='records')
+    if is_sqlalchemy_con(eng):
+        u_rows = rows.copy()
+        md = MetaData(bind=eng)
+        md.reflect()
+        if table_name in md.tables:
+            if key == 'index':
+                u_rows.reset_index(inplace=True)
+            u_rows.rename(columns={key: '_' + key}, inplace=True)
+            row_values = u_rows.to_dict(orient='records')
 
-        table = md.tables[table_name]
-        stmt = update(table).\
-            where(table.c[key] == bindparam('_' + key))
-        eng.connect().execute(stmt, row_values)
-
+            table = md.tables[table_name]
+            stmt = update(table).\
+                where(table.c[key] == bindparam('_' + key))
+            eng.connect().execute(stmt, row_values)
+    else:
+        eng.rows_update(rows, table_name, key)
 
 # -----------------------------------------------------
 # Google spreadsheet
