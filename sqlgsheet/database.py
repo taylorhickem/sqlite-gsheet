@@ -136,6 +136,7 @@ def load_sql(generic_con_class=None):
 
         if DB_SOURCE == 'generic': #templates.DBConnection
             con = generic_con_class(DB_CONFIG)
+            con.connect()
             engine = con
             table_names = con.get_table_names()
 
