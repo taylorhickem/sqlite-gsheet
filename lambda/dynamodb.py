@@ -227,7 +227,8 @@ class DynamoDBTable(object):
     def delete_all(self):
         """ DELETE: deletes all rows in the table
         """
-        pass
+        keys = self.get_all_keys()
+        self._items_delete(keys)
 
     def _items_delete(self, keys: list):
         """ DELETE: takes input list of keys and deletes the rows from the database

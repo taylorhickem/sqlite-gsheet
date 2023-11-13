@@ -28,6 +28,7 @@ from sqlgsheet import mysql
 # constants
 DB_SOURCE = 'local'    # remote=MySQL, local=sqlite, generic=templates.DBConnection
 PATH_GSHEET_CONFIG = 'gsheet_config.json'
+PATH_DB_CONFIG = 'db_config.json'
 NUMERIC_TYPES = ['int', 'float']
 SQL_DB_NAME = 'sqlite:///myapp.db'
 SQL_DATA_TYPES = {'INTEGER()':'int',
@@ -70,6 +71,8 @@ def load_client_secret(client_secret):
 def load_config(db_config={}):
     global CONFIG, GSHEET_CONFIG, DB_CONFIG
     GSHEET_CONFIG = json.load(open(PATH_GSHEET_CONFIG))
+    if not db_config:
+        db_config = json.load(open(PATH_DB_CONFIG))
     DB_CONFIG = db_config
 
 
@@ -81,8 +84,9 @@ def load_gsheet():
 
 def set_user_data(gsheet_config: Optional[str] = None,
                   client_secret: Optional[str] = None,
-                  mysql_credentials: Optional[str] = None) -> None:
-    global PATH_GSHEET_CONFIG
+                  mysql_credentials: Optional[str] = None,
+                  db_config: Optional[str] = None) -> None:
+    global PATH_GSHEET_CONFIG, PATH_DB_CONFIG
     if client_secret:
         gs.CLIENT_SECRET_FILE = client_secret
         gd.CLIENT_SECRET_FILE = client_secret
@@ -90,6 +94,8 @@ def set_user_data(gsheet_config: Optional[str] = None,
         mysql.PATH_MYSQL_CRED = mysql_credentials
     if gsheet_config:
         PATH_GSHEET_CONFIG = gsheet_config
+    if db_config:
+        PATH_DB_CONFIG = db_config
 
 
 # -----------------------------------------------------
