@@ -121,24 +121,25 @@ def sql_config(db_source, sqlite_db_name=None, db_config={}):
 def load_sql(generic_con_class=None):
     global engine, inspector, table_names, con
     if engine is None:
-        if DB_SOURCE == 'remote': # MySQL
-            mysql.load()
-            engine = mysql.engine
-            con = mysql.con
-
-        elif DB_SOURCE == 'local': # sqlite
-            connect = _sqlite_connection(database=SQL_DB_NAME)
-            engine = connect['engine']
-            con = connect['con']
-
-        inspector = Inspector.from_engine(engine)
-        table_names = inspector.get_table_names()
-
         if DB_SOURCE == 'generic': #templates.DBConnection
             con = generic_con_class(DB_CONFIG)
             con.connect()
             engine = con
             table_names = con.get_table_names()
+        else:
+            if DB_SOURCE == 'remote': # MySQL
+                mysql.load()
+                engine = mysql.engine
+                con = mysql.con
+
+            elif DB_SOURCE == 'local': # sqlite
+                connect = _sqlite_connection(database=SQL_DB_NAME)
+                engine = connect['engine']
+                con = connect['con']
+
+            inspector = Inspector.from_engine(engine)
+            table_names = inspector.get_table_names()
+
 
 
 def table_exists(tableName):
