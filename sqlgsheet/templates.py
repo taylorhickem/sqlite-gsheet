@@ -3,7 +3,7 @@
 from pandas import DataFrame
 
 class DBConnection(object):
-    _connection = {'engine': None, 'con': None}
+    _connected = False
     config = {}
 
     def __init__(self, config={}):
@@ -15,12 +15,12 @@ class DBConnection(object):
     def __on_error__(self, error='', exception=None):
         pass
 
-    def connect(self):
+    def connect(self, **kwargs):
         """ creates a connection to the database. After running this
-        the self._connection dictionary should be updated and
+        the self._connected should be updated and if successful,
         should be able to directly perform CRUD operations on tables
         """
-        pass
+        self._connected = True
 
     def disconnect(self):
         pass
@@ -28,11 +28,16 @@ class DBConnection(object):
     def is_connected(self):
         """ returns the status of the database connection
         """
-        pass
-        return False
+        return self._connected
 
-    def connection(self, **kwargs):
-        return self._connection
+    def connection(self, **kwargs) -> dict:
+        """ returns a connection dictionary with a copy of self for 'eng' and 'con'
+            first check if connected, if not then attempt to open a connection
+        """
+        if not self.is_connected():
+            self.connect(**kwargs)
+        con_dict = {'engine': self, 'con': self}
+        return con_dict
 
     def table_exists(self, table_name: str) -> bool:
         pass

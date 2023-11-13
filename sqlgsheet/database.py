@@ -171,14 +171,16 @@ def update_table(tbl, tblname, append=True):
         engine.rows_insert(tbl, tblname)
 
 
-def db_connection(db_type, **spec) -> dict:
+def db_connection(db_type, con_obj=None, spec={}) -> dict:
     connect = {}
     if db_type == 'sqlite':
         connect = _sqlite_connection(**spec)
     elif db_type == 'mysql':
         connect = mysql.get_connection(**spec)
     elif db_type == 'generic':
-        connect = con.connection(**spec)
+        if con_obj is None:
+            con_obj = con
+        connect = con_obj.connection(**spec)
     else:
         raise ValueError(f'unrecognized db_type:{db_type}. Allowed  [sqlite, mysql, generic]')
     return connect
