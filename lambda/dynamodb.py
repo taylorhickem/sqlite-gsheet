@@ -11,6 +11,7 @@ import boto3
 
 DEFAULT_BATCH_MAX = 100
 DIRECT_MAP = ['str', 'int']
+REF_DATE = dt.datetime(1900, 1, 1)
 DATETIME_FORMATS = {
     'datetime': '%Y-%m-%d %H:%M:%S',
     'date': '%Y-%m-%d',
@@ -398,9 +399,20 @@ class DynamoDBAPI(object):
 
 def pandas_format(column_spec: str, df_series: pd.Series) -> pd.Series:
     formatted = df_series.copy()
-    data_type, format_spec = extract_parenthesis(column_spec)
-    if data_type not in DIRECT_MAP:
-        pass
+    if len(formatted) > 0:
+        data_type, format_spec = extract_parenthesis(column_spec)
+        if data_type not in DIRECT_MAP:
+            if data_type in DATETIME_FORMATS:
+                if format_spec == '':
+                    format_spec = DATETIME_FORMATS[data_type]
+                if data_type == 'time': # -> dt.timedelta
+                    formatted = formatted.apply(
+                        lambda x: dt.datetime.strptime(x, format_spec) - REF_DATE)
+                else: # -> dt.datetime
+                    formatted = formatted.apply(lambda x: dt.datetime.strptime(x, format_spec))
+
+            elif data_type == 'decimal':
+                    formatted = formatted.astype(float)
 
     return formatted
 
@@ -419,8 +431,8 @@ def dynamodb_format_value(column_spec: str, raw):
         if data_type in DATETIME_FORMATS:
             if format_spec == '':
                 format_spec = DATETIME_FORMATS[data_type]
-            if isinstance(dt.timedelta, formatted):
-                formatted = dt.datetime(1970, 1, 1) + formatted
+            if isinstance(formatted, dt.timedelta):
+                formatted = REF_DATE + formatted
             formatted = formatted.strftime(format_spec)
 
         elif data_type == 'decimal':
