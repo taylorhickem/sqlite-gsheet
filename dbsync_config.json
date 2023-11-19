@@ -4,14 +4,11 @@
     "database": "sqlite:///hours.db"
   },
   "slave": {
-    "db_type": "mysql",
-    "database": "hours",
-    "login": "mysql+pymysql://{user}:{pw}@pcl-automation-mysql.camy7dtgzd7a.ap-southeast-1.rds.amazonaws.com/{db}",
-    "username": "admin",
-    "password": "Saturday$2022"
+    "db_type": "generic",
+    "generic_type": "aws_dynamodb"
   },
   "tables": {
-    "logs": {
+    "tgevents": {
       "last_modified": "last_updated",
       "key": "timestamp"
     }

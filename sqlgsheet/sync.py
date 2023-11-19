@@ -114,14 +114,15 @@ class DBSyncer(object):
             for r in DB_ROLES:
                 self.disconnect(db_role=r)
 
-    def db_connect(self, db_role='', refresh=False):
+    def db_connect(self, db_role='', refresh=False, con_obj=None, db_spec={}):
         connect = {}
         if db_role:
-            spec = self.sync_config[db_role].copy()
-            db_type = spec.pop('db_type')
+            if not db_spec:
+                db_spec = self.sync_config[db_role].copy()
+            db_type = db_spec.pop('db_type')
             if refresh or not self.connected(db_role):
                 try:
-                    connect = db.db_connection(db_type, **spec)
+                    connect = db.db_connection(db_type, con_obj=con_obj, spec=db_spec)
                 except Exception as e:
                     self._exception_handle(e=e, error_message='db connect failed.')
                 if connect:
