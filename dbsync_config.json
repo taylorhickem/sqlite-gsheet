@@ -9,7 +9,7 @@
   },
   "tables": {
     "tgevents": {
-      "last_modified": "last_updated",
+      "last_modified": "last_modified",
       "key": "timestamp"
     }
   }
