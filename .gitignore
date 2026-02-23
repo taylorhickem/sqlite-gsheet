@@ -17,3 +17,9 @@ hours.db
 db.sqlite3
 /static
 .DS_Store
+
+# binary and database
+*.db
+
+# virtual env
+env
